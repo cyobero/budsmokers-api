@@ -2,12 +2,15 @@
 extern crate diesel;
 
 use self::models::*;
+use self::schema::cannabis::dsl::cannabis;
 use self::schema::products::dsl::*;
 
 use diesel::backend::Backend;
 use diesel::pg::{Pg, PgConnection};
 use diesel::r2d2::{self, ConnectionManager};
-use diesel::{result::Error, Connection, ConnectionError, QueryDsl, RunQueryDsl};
+use diesel::{
+    result::Error, Connection, ConnectionError, Insertable, QueryDsl, Queryable, RunQueryDsl,
+};
 
 use std::env;
 
@@ -65,6 +68,14 @@ impl Creatable for NewProduct {
     }
 }
 
+impl Creatable for NewCannabis {
+    type Object = Cannabis;
+
+    fn create(&self, conn: &PgConnection) -> Result<Cannabis, Error> {
+        diesel::insert_into(cannabis).values(self).get_result(conn)
+    }
+}
+
 impl Readable for Product {
     fn all(conn: &PgConnection) -> Result<Vec<Product>, Error> {
         products.load(conn)
@@ -75,8 +86,24 @@ impl Readable for Product {
     }
 }
 
+impl Readable for Cannabis {
+    fn all(conn: &PgConnection) -> Result<Vec<Cannabis>, Error> {
+        cannabis.load(conn)
+    }
+
+    fn with_id(conn: &PgConnection, _id: &i32) -> Result<Cannabis, Error> {
+        cannabis.find(_id).get_result(conn)
+    }
+}
+
 impl Deletable for Product {
     fn delete(&self, conn: &PgConnection) -> Result<Product, Error> {
         diesel::delete(products.find(self.get_id())).get_result(conn)
+    }
+}
+
+impl Deletable for Cannabis {
+    fn delete(&self, conn: &PgConnection) -> Result<Cannabis, Error> {
+        diesel::delete(cannabis.find(self.get_id())).get_result(conn)
     }
 }

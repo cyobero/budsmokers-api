@@ -1,7 +1,7 @@
-use super::schema::products;
+use super::schema::{cannabis, products};
 
+use diesel::{pg::PgConnection, Connection, ExpressionMethods, QueryDsl, RunQueryDsl};
 use diesel_derive_enum::DbEnum;
-
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize, Serialize, DbEnum)]
@@ -15,7 +15,7 @@ pub enum Category {
     Other,
 }
 
-#[derive(Debug, DbEnum)]
+#[derive(Debug, DbEnum, Deserialize, Serialize)]
 pub enum Family {
     Indica,
     Sativa,
@@ -61,5 +61,70 @@ impl Product {
 
     pub fn get_category(&self) -> &Category {
         &self.category
+    }
+}
+
+#[derive(Debug, Deserialize, Insertable)]
+#[table_name = "cannabis"]
+pub struct NewCannabis {
+    product_id: i32,
+    family: Family,
+    thc: f32,
+    cbd: f32,
+    total_cannabinoids: f32,
+}
+
+impl NewCannabis {
+    pub fn new(
+        product_id: i32,
+        family: Family,
+        thc: f32,
+        cbd: f32,
+        total_cannabinoids: f32,
+    ) -> Self {
+        NewCannabis {
+            product_id,
+            family,
+            thc,
+            cbd,
+            total_cannabinoids,
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Queryable, QueryableByName)]
+#[table_name = "cannabis"]
+pub struct Cannabis {
+    id: i32,
+    product_id: i32,
+    family: Family,
+    thc: f32,
+    cbd: f32,
+    total_cannabinoids: f32,
+}
+
+impl Cannabis {
+    pub fn get_id(&self) -> &i32 {
+        &self.id
+    }
+
+    pub fn get_product_id(&self) -> &i32 {
+        &self.product_id
+    }
+
+    pub fn get_family(&self) -> &Family {
+        &self.family
+    }
+
+    pub fn get_thc(&self) -> &f32 {
+        &self.thc
+    }
+
+    pub fn get_cbd(&self) -> &f32 {
+        &self.cbd
+    }
+
+    pub fn get_total_cannabinoids(&self) -> &f32 {
+        &self.total_cannabinoids
     }
 }

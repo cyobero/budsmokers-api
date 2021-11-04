@@ -26,3 +26,15 @@ pub async fn get_product_id(
         .map(|prod| HttpResponse::Ok().json(prod))
         .map_err(|e| HttpResponse::InternalServerError().json(e.to_string()))
 }
+
+#[post("/products/cannabis")]
+pub async fn post_cannabis(
+    pool: web::Data<DbPool>,
+    form: web::Form<NewCannabis>,
+) -> Result<HttpResponse, HttpResponse> {
+    let conn = pool.get().expect("Could not get connection from pool.");
+    web::block(move || form.into_inner().create(&conn))
+        .await
+        .map(|cnbs| HttpResponse::Ok().json(cnbs))
+        .map_err(|e| HttpResponse::InternalServerError().json(e.to_string()))
+}

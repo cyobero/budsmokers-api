@@ -22,6 +22,7 @@ async fn main() -> std::io::Result<()> {
             .data(pool.clone())
             .service(post_product)
             .service(get_product_id)
+            .service(post_cannabis)
     })
     .bind("127.0.1.1:8888")?
     .run()
