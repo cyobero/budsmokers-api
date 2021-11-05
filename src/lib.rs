@@ -4,7 +4,7 @@ extern crate diesel;
 use self::models::*;
 use self::schema::cannabis::dsl::cannabis;
 use self::schema::inventories::dsl::inventories;
-use self::schema::products::dsl::products;
+use self::schema::products::dsl::{name, products};
 
 use diesel::backend::Backend;
 use diesel::pg::{Pg, PgConnection};
@@ -94,7 +94,7 @@ impl Creatable for NewInventory {
 
 impl Readable for Product {
     fn all(conn: &PgConnection) -> Result<Vec<Product>, Error> {
-        products.load(conn)
+        products.order(name).load(conn)
     }
 
     fn with_id(conn: &PgConnection, _id: &i32) -> Result<Product, Error> {
