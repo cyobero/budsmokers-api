@@ -42,6 +42,7 @@ pub async fn new_cannabis_form(
 ) -> Result<HttpResponse, HttpResponse> {
     let mut errors = Vec::<String>::new();
     let conn = pool.get().expect("Couldn't get connection from pool.");
+
     web::block(move || Product::all(&conn))
         .await
         .map(|prods| {
@@ -55,4 +56,32 @@ pub async fn new_cannabis_form(
             let body = hb.render("new_cannabis_form", &data).unwrap();
             HttpResponse::InternalServerError().body(&body)
         })
+}
+
+#[post("/products/cannabis/new/")]
+pub async fn post_new_cannabis_form(
+    hb: web::Data<Handlebars<'_>>,
+    pool: web::Data<DbPool>,
+    form: web::Form<NewCannabis>,
+) -> Result<HttpResponse, HttpResponse> {
+    let mut errors = Vec::<String>::new();
+    let conn = pool.get().expect("Couldn't get connection from pool.");
+    let prods = web::block(move || Product::all(&conn))
+        .await
+        .map_err(|e| errors.push(e.to_string()))
+        .unwrap();
+
+    web::block(move || form.into_inner().create(&pool.get().expect("Couldn't get connection from pool.")))
+        .await
+        .map(|cnbs| {
+            let data = json!({"products": prods, "new_cannabis": cnbs, "fields": Family::fields(), "errors": errors });
+            let body = hb.render("new_cannabis_form", &data).unwrap();
+            HttpResponse::Ok().body(&body)
+        })
+    .map_err(|e| {
+        errors.push(e.to_string());
+        let data = json!({"errors": errors, "products": prods, "fields": Family::fields()});
+        let body = hb.render("new_cannabis_form", &data).unwrap();
+        HttpResponse::InternalServerError().body(&body)
+    })
 }

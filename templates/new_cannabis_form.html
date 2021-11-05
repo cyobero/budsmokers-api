@@ -7,9 +7,9 @@
         <h3>New Product</h3>
         <form method="POST" action="/products/cannabis/new/">
             <label for="products">Choose product:</label>
-            <select id="products" name="products">
+            <select id="products" name="product_id">
                 {{#each products}}
-                <option value="{{this.product_id}}">{{this.name}} ({{this.category}})</option>
+                <option value='{{this.id}}'>{{this.name}} ({{this.category}})</option>
                 {{/each}}
             </select>
 
@@ -32,7 +32,7 @@
             <input type="submit" value="Add Cannabis Product">
         </form>
         {{#if new_cannabis}}
-        <p><strong>{{new_cannabis.name}} added to database.</strong></p>
+        <p><strong>Added to database.</strong></p>
         {{/if}}
 
         {{#if errors}}
