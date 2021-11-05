@@ -14,7 +14,6 @@ use diesel::{result::Error, Connection, ConnectionError, QueryDsl, RunQueryDsl};
 use serde::Serialize;
 
 use std::env;
-use std::fmt::Display;
 
 pub mod handlers;
 mod models;
