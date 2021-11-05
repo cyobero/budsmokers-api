@@ -47,6 +47,6 @@ mod tests {
 
         assert!(deleted.is_ok());
 
-        _prod.delete(&conn);
+        let _ = _prod.delete(&conn);
     }
 }

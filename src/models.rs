@@ -1,6 +1,8 @@
 use super::schema::{cannabis, inventories, products};
 
-use diesel::{pg::PgConnection, Connection, ExpressionMethods, QueryDsl, RunQueryDsl};
+use diesel::pg::PgConnection;
+use diesel::sql_types::Integer;
+use diesel::{sql_query, RunQueryDsl};
 use diesel_derive_enum::DbEnum;
 use serde::{Deserialize, Serialize};
 
@@ -162,5 +164,15 @@ pub struct Inventory {
 impl Inventory {
     pub fn get_id(&self) -> &i32 {
         &self.id
+    }
+
+    pub fn with_product_id(
+        conn: &PgConnection,
+        prod_id: &i32,
+    ) -> Result<Vec<Inventory>, diesel::result::Error> {
+        let _stmt = "SELECT * FROM inventories WHERE product_id = $1";
+        sql_query(_stmt)
+            .bind::<Integer, _>(prod_id)
+            .get_results(conn)
     }
 }
