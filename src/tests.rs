@@ -31,4 +31,22 @@ mod tests {
 
         let _ = _prod.delete(&conn);
     }
+
+    #[test]
+    fn inventory_created_and_deleted() {
+        let conn = establish_connection().unwrap();
+        let _prod = NewProduct::new("Reggie Kush #15", Category::Flower)
+            .create(&conn)
+            .unwrap();
+
+        let new = NewInventory::new(*_prod.get_id(), 10, 15.0, 1.0).create(&conn);
+
+        assert!(new.is_ok());
+
+        let deleted = new.unwrap().delete(&conn);
+
+        assert!(deleted.is_ok());
+
+        _prod.delete(&conn);
+    }
 }

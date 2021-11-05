@@ -23,8 +23,9 @@ async fn main() -> std::io::Result<()> {
             .service(post_product)
             .service(get_product_id)
             .service(post_cannabis)
+            .service(get_cannabis_id)
     })
-    .bind("127.0.1.1:8888")?
+    .bind("192.168.0.6:8888")?
     .run()
     .await
 }

@@ -1,4 +1,4 @@
-use super::schema::{cannabis, products};
+use super::schema::{cannabis, inventories, products};
 
 use diesel::{pg::PgConnection, Connection, ExpressionMethods, QueryDsl, RunQueryDsl};
 use diesel_derive_enum::DbEnum;
@@ -126,5 +126,41 @@ impl Cannabis {
 
     pub fn get_total_cannabinoids(&self) -> &f32 {
         &self.total_cannabinoids
+    }
+}
+
+#[derive(Debug, Deserialize, Insertable)]
+#[table_name = "inventories"]
+pub struct NewInventory {
+    product_id: i32,
+    stock: i32,
+    price: f32,
+    net_weight: f32,
+}
+
+impl NewInventory {
+    pub fn new(product_id: i32, stock: i32, price: f32, net_weight: f32) -> Self {
+        NewInventory {
+            product_id,
+            stock,
+            price,
+            net_weight,
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Queryable, QueryableByName)]
+#[table_name = "inventories"]
+pub struct Inventory {
+    id: i32,
+    product_id: i32,
+    stock: i32,
+    price: f32,
+    net_weight: f32,
+}
+
+impl Inventory {
+    pub fn get_id(&self) -> &i32 {
+        &self.id
     }
 }
