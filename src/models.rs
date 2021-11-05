@@ -1,7 +1,7 @@
 use super::schema::{cannabis, inventories, products};
 
 use diesel::pg::PgConnection;
-use diesel::sql_types::Integer;
+use diesel::sql_types::{Float, Integer, VarChar};
 use diesel::{sql_query, RunQueryDsl};
 use diesel_derive_enum::DbEnum;
 use serde::{Deserialize, Serialize};
@@ -16,7 +16,6 @@ pub enum Category {
     Accessory,
     Other,
 }
-
 #[derive(Debug, DbEnum, Deserialize, Serialize)]
 pub enum Family {
     Indica,
@@ -161,6 +160,30 @@ pub struct Inventory {
     net_weight: f32,
 }
 
+#[derive(Debug, Serialize, Queryable, QueryableByName)]
+pub struct InventoryResponse {
+    #[sql_type = "Integer"]
+    id: i32,
+
+    #[sql_type = "Integer"]
+    product_id: i32,
+
+    #[sql_type = "VarChar"]
+    name: String,
+
+    #[sql_type = "CategoryMapping"]
+    category: Category,
+
+    #[sql_type = "Integer"]
+    stock: i32,
+
+    #[sql_type = "Float"]
+    price: f32,
+
+    #[sql_type = "Float"]
+    net_weight: f32,
+}
+
 impl Inventory {
     pub fn get_id(&self) -> &i32 {
         &self.id
@@ -169,8 +192,11 @@ impl Inventory {
     pub fn with_product_id(
         conn: &PgConnection,
         prod_id: &i32,
-    ) -> Result<Vec<Inventory>, diesel::result::Error> {
-        let _stmt = "SELECT * FROM inventories WHERE product_id = $1";
+    ) -> Result<Vec<InventoryResponse>, diesel::result::Error> {
+        let _stmt = "SELECT
+                      i.id, i.product_id, p.name, p.category, i.stock, i.price, i.net_weight
+                    FROM inventories i INNER JOIN products p ON i.product_id = p.id
+                    WHERE p.id = $1";
         sql_query(_stmt)
             .bind::<Integer, _>(prod_id)
             .get_results(conn)
