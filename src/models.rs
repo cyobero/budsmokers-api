@@ -159,6 +159,24 @@ pub struct Inventory {
     price: f32,
     net_weight: f32,
 }
+impl Inventory {
+    pub fn get_id(&self) -> &i32 {
+        &self.id
+    }
+
+    pub fn with_product_id(
+        conn: &PgConnection,
+        prod_id: &i32,
+    ) -> Result<Vec<InventoryResponse>, diesel::result::Error> {
+        let _stmt = "SELECT
+                      i.id, i.product_id, p.name, p.category, i.stock, i.price, i.net_weight
+                    FROM inventories i INNER JOIN products p ON i.product_id = p.id
+                    WHERE p.id = $1";
+        sql_query(_stmt)
+            .bind::<Integer, _>(prod_id)
+            .get_results(conn)
+    }
+}
 
 #[derive(Debug, Serialize, Queryable, QueryableByName)]
 pub struct InventoryResponse {
@@ -182,23 +200,4 @@ pub struct InventoryResponse {
 
     #[sql_type = "Float"]
     net_weight: f32,
-}
-
-impl Inventory {
-    pub fn get_id(&self) -> &i32 {
-        &self.id
-    }
-
-    pub fn with_product_id(
-        conn: &PgConnection,
-        prod_id: &i32,
-    ) -> Result<Vec<InventoryResponse>, diesel::result::Error> {
-        let _stmt = "SELECT
-                      i.id, i.product_id, p.name, p.category, i.stock, i.price, i.net_weight
-                    FROM inventories i INNER JOIN products p ON i.product_id = p.id
-                    WHERE p.id = $1";
-        sql_query(_stmt)
-            .bind::<Integer, _>(prod_id)
-            .get_results(conn)
-    }
 }
