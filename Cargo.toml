@@ -12,6 +12,7 @@ chrono = { version = "0.4.9", features = ["serde"] }
 diesel = { version = "1.4.2", features = ["postgres", "r2d2", "chrono"] }
 diesel-derive-enum = { version = "0.4.1", features = ["postgres"] }
 dotenv = "0.15.0"
+handlebars = { version = "4.1.3", features = ["dir_source"] }
 r2d2 = "*"
 reqwest = { version = "0.11", features = ["json", "blocking"] }
 serde = "1.0.130"

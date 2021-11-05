@@ -1,4 +1,5 @@
 use super::schema::{cannabis, inventories, products};
+use super::Field;
 
 use diesel::pg::PgConnection;
 use diesel::sql_types::{Float, Integer, VarChar};
@@ -16,6 +17,21 @@ pub enum Category {
     Accessory,
     Other,
 }
+
+impl Field<'static, Category> for Category {
+    fn fields() -> Vec<&'static str> {
+        vec![
+            "Flower",
+            "PreRoll",
+            "Edible",
+            "Cartridge",
+            "Extract",
+            "Accessory",
+            "Other",
+        ]
+    }
+}
+
 #[derive(Debug, DbEnum, Deserialize, Serialize)]
 pub enum Family {
     Indica,
@@ -23,7 +39,7 @@ pub enum Family {
     Hybrid,
 }
 
-#[derive(Deserialize, Insertable)]
+#[derive(Serialize, Deserialize, Insertable)]
 #[table_name = "products"]
 pub struct NewProduct {
     pub name: String,

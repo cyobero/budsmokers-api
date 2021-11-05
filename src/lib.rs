@@ -11,12 +11,16 @@ use diesel::pg::{Pg, PgConnection};
 use diesel::r2d2::{self, ConnectionManager};
 use diesel::{result::Error, Connection, ConnectionError, QueryDsl, RunQueryDsl};
 
+use serde::Serialize;
+
 use std::env;
+use std::fmt::Display;
 
 pub mod handlers;
 mod models;
 mod schema;
 mod tests;
+pub mod views;
 
 pub mod exports {
     pub use super::models::CategoryMapping as Category;
@@ -28,6 +32,10 @@ pub type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 pub fn establish_connection() -> Result<PgConnection, ConnectionError> {
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set.");
     PgConnection::establish(&database_url)
+}
+
+pub trait Field<'a, T: Serialize> {
+    fn fields() -> Vec<&'a str>;
 }
 
 pub trait Creatable<Db = Pg, Conn = PgConnection, Er = Error>
