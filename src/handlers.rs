@@ -62,3 +62,15 @@ pub async fn post_inventory(
         .map(|inv| HttpResponse::Ok().json(inv))
         .map_err(|e| HttpResponse::InternalServerError().json(e.to_string()))
 }
+
+#[get("/products/{id}/inventory")]
+pub async fn get_product_inventory(
+    pool: web::Data<DbPool>,
+    path: web::Path<(i32,)>,
+) -> Result<HttpResponse, HttpResponse> {
+    let conn = pool.get().expect("Could not get connection from pool.");
+    web::block(move || Inventory::with_product_id(&conn, &path.into_inner().0))
+        .await
+        .map(|inv| HttpResponse::Ok().json(inv))
+        .map_err(|e| HttpResponse::InternalServerError().json(e.to_string()))
+}
