@@ -39,6 +39,12 @@ pub enum Family {
     Hybrid,
 }
 
+impl Field<'static, Family> for Family {
+    fn fields() -> Vec<&'static str> {
+        vec!["Indica", "Sativa", "Hybrid"]
+    }
+}
+
 #[derive(Serialize, Deserialize, Insertable)]
 #[table_name = "products"]
 pub struct NewProduct {

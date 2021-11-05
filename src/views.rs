@@ -1,5 +1,5 @@
 use super::models::*;
-use super::{Creatable, DbPool, Field};
+use super::{Creatable, DbPool, Field, Readable};
 
 use actix_web::{get, post, web, HttpResponse, Result};
 
@@ -31,6 +31,28 @@ pub async fn post_new_product_form(
         .map_err(|e| {
             let data = json!({"error": e.to_string(), "fields": Category::fields()});
             let body = hb.render("new_product_form", &data).unwrap();
+            HttpResponse::InternalServerError().body(&body)
+        })
+}
+
+#[get("/products/cannabis/new/")]
+pub async fn new_cannabis_form(
+    hb: web::Data<Handlebars<'_>>,
+    pool: web::Data<DbPool>,
+) -> Result<HttpResponse, HttpResponse> {
+    let mut errors = Vec::<String>::new();
+    let conn = pool.get().expect("Couldn't get connection from pool.");
+    web::block(move || Product::all(&conn))
+        .await
+        .map(|prods| {
+            let data = json!({ "products": prods, "fields": Family::fields() });
+            let body = hb.render("new_cannabis_form", &data).unwrap();
+            HttpResponse::Ok().body(&body)
+        })
+        .map_err(|e| {
+            errors.push(e.to_string());
+            let data = json!({ "errors": errors, "fields": Family::fields() });
+            let body = hb.render("new_cannabis_form", &data).unwrap();
             HttpResponse::InternalServerError().body(&body)
         })
 }
