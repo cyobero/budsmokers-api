@@ -24,6 +24,8 @@ async fn main() -> std::io::Result<()> {
             .service(get_product_id)
             .service(post_cannabis)
             .service(get_cannabis_id)
+            .service(post_inventory)
+            .service(get_product_inventory)
     })
     .bind("192.168.0.6:8888")?
     .run()
