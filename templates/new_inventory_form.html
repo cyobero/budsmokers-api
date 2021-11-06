@@ -13,13 +13,13 @@
                 {{/each}}
             </select>
                 <label for="stock">Stock:</label>
-                <input type="number" id="stock" name="stock">
+                <input type="number" step="1" id="stock" name="stock">
                 
                 <label for="price">Price ($): </label>
-                <input type="number" name="price">
+                <input type="number" step="0.01" name="price">
 
                 <label for="net_weight">Net weight (grams): </label>
-                <input type="number" name="net_weight">
+                <input type="number" step="0.01" name="net_weight">
 
                 <input type="submit" value="Add Inventory">
         </form>

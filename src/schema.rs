@@ -1,6 +1,5 @@
 table! {
     use diesel::sql_types::*;
-    use crate::exports::*;
 
     batches (id) {
         id -> Int4,
@@ -27,7 +26,6 @@ table! {
 
 table! {
     use diesel::sql_types::*;
-    use crate::exports::*;
 
     inventories (id) {
         id -> Int4,
@@ -51,7 +49,6 @@ table! {
 
 table! {
     use diesel::sql_types::*;
-    use crate::exports::*;
 
     terpenes (id) {
         id -> Int4,
@@ -69,10 +66,4 @@ joinable!(cannabis -> products (product_id));
 joinable!(inventories -> products (product_id));
 joinable!(terpenes -> cannabis (cannabis_id));
 
-allow_tables_to_appear_in_same_query!(
-    batches,
-    cannabis,
-    inventories,
-    products,
-    terpenes,
-);
+allow_tables_to_appear_in_same_query!(batches, cannabis, inventories, products, terpenes,);
