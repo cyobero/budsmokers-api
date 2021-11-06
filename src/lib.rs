@@ -9,8 +9,8 @@ use self::schema::products::dsl::{name, products};
 use diesel::backend::Backend;
 use diesel::pg::{Pg, PgConnection};
 use diesel::r2d2::{self, ConnectionManager};
-use diesel::{result::Error, Connection, ConnectionError, QueryDsl, RunQueryDsl};
-
+use diesel::sql_types::Integer;
+use diesel::{result::Error, sql_query, Connection, ConnectionError, QueryDsl, RunQueryDsl};
 use serde::Serialize;
 
 use std::env;
@@ -119,6 +119,23 @@ impl Readable for Inventory {
 
     fn with_id(conn: &PgConnection, _id: &i32) -> Result<Inventory, Error> {
         inventories.find(_id).get_result(conn)
+    }
+}
+
+impl Readable for InventoryResponse {
+    fn all(conn: &PgConnection) -> Result<Vec<InventoryResponse>, Error> {
+        let _stmt = "SELECT i.id, i.product_id, p.name, p.category, i.stock,
+                      i.price, i.net_weight
+                     FROM inventories i INNER JOIN products p ON i.product_id = p.id";
+        sql_query(_stmt).load(conn)
+    }
+
+    fn with_id(conn: &PgConnection, _id: &i32) -> Result<InventoryResponse, Error> {
+        let _stmt = "SELECT i.id, i.product_id, p.name, p.category, i.stock,
+                      i.price, i.net_weight
+                     FROM inventories i INNER JOIN products p ON i.product_id = p.id
+                     WHERE i.id = $1";
+        sql_query(_stmt).bind::<Integer, _>(_id).get_result(conn)
     }
 }
 
