@@ -85,3 +85,23 @@ pub async fn post_new_cannabis_form(
         HttpResponse::InternalServerError().body(&body)
     })
 }
+
+#[get("/products/inventories/new/")]
+pub async fn new_inventory_form(
+    hb: web::Data<Handlebars<'_>>,
+    pool: web::Data<DbPool>,
+) -> Result<HttpResponse, HttpResponse> {
+    let conn = pool.get().expect("Couldn't get connection from pool.");
+    web::block(move || Product::all(&conn))
+        .await
+        .map(|prods| {
+            let data = json!({ "products": prods });
+            let body = hb.render("new_inventory_form", &data).unwrap();
+            HttpResponse::Ok().body(&body)
+        })
+        .map_err(|e| {
+            let data = json!({"errors": e.to_string()});
+            let body = hb.render("new_inventory_form", &data).unwrap();
+            HttpResponse::InternalServerError().body(&body)
+        })
+}
