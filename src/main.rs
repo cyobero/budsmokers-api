@@ -1,5 +1,4 @@
 use products::handlers::*;
-use products::views::*;
 
 use actix_web::{web, App, HttpServer};
 
