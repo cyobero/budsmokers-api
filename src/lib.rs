@@ -19,7 +19,6 @@ pub mod handlers;
 mod models;
 mod schema;
 mod tests;
-pub mod views;
 
 pub mod exports {
     pub use super::models::CategoryMapping as Category;
