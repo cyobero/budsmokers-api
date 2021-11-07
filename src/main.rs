@@ -38,6 +38,7 @@ async fn main() -> std::io::Result<()> {
             .service(post_inventory)
             .service(get_product_inventory)
             .service(get_inventories)
+            .service(get_products)
     })
     .bind("192.168.0.6:8888")?
     .run()
