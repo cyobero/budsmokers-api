@@ -1,2 +1,2 @@
 [workspace]
-members = [ "products" ]
+members = [ "products", "users" ]
