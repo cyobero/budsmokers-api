@@ -6,9 +6,8 @@ use self::schema::users::dsl::users;
 
 mod models;
 mod schema;
+mod tests;
 
-use diesel::backend::Backend;
-use diesel::pg::Pg;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use diesel::result::Error;
@@ -30,9 +29,28 @@ impl<'id> Identifiable<'id> for User {
     }
 }
 
-pub trait Creatable<Db = Pg, Conn = PgConnection, Er = Error>
+pub trait Deletable<Id = i32, Conn = PgConnection, Er = Error>
 where
-    Db: Backend,
+    Id: PartialEq,
+    Conn: Connection,
+{
+    type Output;
+    fn delete(&self, conn: &Conn) -> Result<Self::Output, Er>;
+}
+
+pub trait Readable<Id = i32, Conn = PgConnection, Er = Error>
+where
+    Id: PartialEq,
+    Conn: Connection,
+{
+    type Output;
+
+    fn all(conn: &PgConnection) -> Result<Vec<Self::Output>, Er>;
+    fn with_id(conn: &PgConnection, _id: &Id) -> Result<Self::Output, Er>;
+}
+
+pub trait Creatable<Conn = PgConnection, Er = Error>
+where
     Conn: Connection,
 {
     type Output;
@@ -45,5 +63,25 @@ impl Creatable for NewUser {
 
     fn create(&self, conn: &PgConnection) -> Result<User, Error> {
         diesel::insert_into(users).values(self).get_result(conn)
+    }
+}
+
+impl Readable for User {
+    type Output = User;
+
+    fn all(conn: &PgConnection) -> Result<Vec<User>, Error> {
+        users.load(conn)
+    }
+
+    fn with_id(conn: &PgConnection, _id: &i32) -> Result<User, Error> {
+        users.find(_id).get_result(conn)
+    }
+}
+
+impl Deletable for User {
+    type Output = User;
+
+    fn delete(&self, conn: &PgConnection) -> Result<User, Error> {
+        diesel::delete(users.find(self._get_id())).get_result(conn)
     }
 }
