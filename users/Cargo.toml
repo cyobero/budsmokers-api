@@ -11,7 +11,9 @@ chrono = { version = "0.4.9", features = ["serde"] }
 diesel = { version = "1.4.2", features = ["postgres", "r2d2", "chrono"] }
 diesel-derive-enum = { version = "0.4.1", features = ["postgres"] }
 dotenv = "0.15.0"
+handlebars = { version = "3.0.1", features = ["dir_source"] }
 r2d2 = "*"
 serde = "1.0.130"
 serde_json = "1"
+sha-crypt = "0.3.1"
 uuid = { version = "0.8.2", features = ["serde"] }

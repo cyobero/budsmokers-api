@@ -1,10 +1,15 @@
 use super::schema::users;
+use super::VerificationError;
 
-use diesel::Insertable;
+use diesel::pg::PgConnection;
+use diesel::result::{DatabaseErrorInformation, DatabaseErrorKind, Error};
+use diesel::{ExpressionMethods, Insertable, QueryDsl, RunQueryDsl};
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize, Serialize, Insertable)]
+use sha_crypt::{sha512_simple, Sha512Params};
+
+#[derive(Debug, Deserialize, Serialize, Insertable)]
 #[table_name = "users"]
 pub struct NewUser {
     username: String,
@@ -21,6 +26,24 @@ impl NewUser {
 
     pub fn get_username(&self) -> &String {
         &self.username
+    }
+
+    pub fn _verify_username(self, conn: &PgConnection) -> Result<NewUser, Error> {
+        let usrs: Vec<User> = users::table
+            .filter(users::username.eq(self.get_username()))
+            .get_results(conn)
+            .expect("Couldn't verify username.");
+
+        match usrs.is_empty() {
+            true => Ok(self),
+            false => Err(Error::NotFound),
+        }
+    }
+
+    pub fn _hash_password(mut self) -> Self {
+        let params = Sha512Params::new(10_000).expect("Random error.");
+        self.password = sha512_simple(&self.password, &params).unwrap();
+        self
     }
 }
 
@@ -39,5 +62,9 @@ impl User {
 
     pub fn _get_id(&self) -> &i32 {
         &self.id
+    }
+
+    pub fn _get_password(&self) -> &String {
+        &self.password
     }
 }
